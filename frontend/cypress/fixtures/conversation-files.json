@@ -1,0 +1,4 @@
+[
+  { "id": 101, "path": "src/main.ts", "content": "console.log('Hello, World!');" },
+  { "id": 102, "path": "styles.scss", "content": "body { color: blue; }" }
+]

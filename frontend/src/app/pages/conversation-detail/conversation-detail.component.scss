@@ -1,0 +1,381 @@
+:host {
+  display: block;
+  height: 93vh;
+  font-family: sans-serif;
+  box-sizing: border-box;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: clamp(350px, 25vw, 450px) 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.loading .spinner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+mat-card-title {
+  margin: 5px 0 0 10px;
+}
+
+.left-column {
+  display: grid;
+  grid-template-rows: 1fr auto 1fr; // Top list, controls, bottom list
+  gap: 1rem;
+  min-height: 0;
+  overflow: auto;
+  max-height: 100vh;
+}
+
+.mat-mdc-card {
+  margin-top: 0 !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.list-card {
+  flex-grow: 0;
+  overflow: auto;
+
+  .mat-mdc-card-content {
+    padding: 0 16px 16px;
+    flex-grow: 1;
+    overflow-y: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.list-card.list-card-files {
+  min-height: 30vh;
+}
+
+.list-card.generated-docs {
+  min-height: 18vh;
+  max-height: 18vh;
+}
+
+.mat-mdc-list-item {
+  cursor: pointer;
+}
+
+.view-toggle {
+  margin-bottom: 8px;
+  align-self: flex-end;
+}
+
+.file-list {
+  overflow: auto;
+  flex-grow: 0;
+}
+
+.tree-container {
+  overflow: auto;
+  flex-grow: 1;
+}
+
+.file-tree {
+  overflow: hidden;
+  display: inline-block;
+  min-width: 100%;
+  vertical-align: top;
+
+  .mat-tree-node, .mat-nested-tree-node {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    list-style-type: none;
+
+    .mat-icon {
+      min-width: 24px;
+    }
+
+    li {
+      width: 100%;
+
+      button {
+        height: 40px !important;
+        width: 40px !important;
+
+        mat-icon {
+          font-size: 20px !important;
+        }
+      }
+
+      ul {
+        margin: 0;
+      }
+    }
+  }
+
+  .node-name {
+    margin-left: 8px;
+    min-width: 100px; 
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .file-node {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+
+    cursor: pointer;
+    border-radius: 4px;
+
+    button {
+      height: 36px !important;
+    }
+
+    .mat-icon {
+      min-width: 24px;
+    }
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.04);
+    }
+
+    &.activated {
+      background-color: #e0e0e0;
+    }
+  }
+
+  // Angular Material Tree styling for indentation
+  ul, li {
+    list-style-type: none;
+  }
+
+  // Remove padding for the root level
+  > li {
+    padding-left: 0;
+  }
+
+  .tree-invisible {
+    display: none;
+  }
+}
+
+.file-path {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.node-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.file-list .mat-mdc-list-item {
+  height: 48px !important;
+}
+
+.controls-card button {
+  margin: 0 0 10px 0;
+}
+
+.controls-card .mat-mdc-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 16px;
+}
+
+.progress-card {
+  .mat-mdc-card-content {
+    padding: 16px;
+  }
+
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+    color: #555;
+  }
+}
+
+.generate-btn {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.preview-card, .editor-card {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.preview-content {
+  flex-grow: 1;
+  overflow: auto;
+  max-height: 100vh;
+  max-width: 70vw;
+  padding-top: 16px;
+
+  // Styles for markdown content
+  ::ng-deep {
+    pre {
+      background-color: #2d2d2d;
+      padding: 1em;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    code {
+      font-family: 'Courier New', Courier, monospace;
+    }
+  }
+}
+
+.editor-card .mat-mdc-card-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1rem 0;
+  gap: 1rem;
+}
+
+.editor-card .mat-mdc-card-actions {
+  padding: 1rem;
+}
+
+.content-editor {
+  flex-grow: 1;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 4px;
+  padding: 1rem;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  background-color: #f9f9f9;
+  resize: none;
+  min-height: 200px;
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 80px;
+  color: #888;
+  font-style: italic;
+}
+
+.controls-card .mat-mdc-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 16px;
+}
+
+.controls-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.controls-actions > button {
+  flex-grow: 1;
+  flex-basis: 120px;
+  min-width: 120px;
+
+  mat-icon {
+    margin-left: -10px;
+  }
+}
+
+.controls-card .mat-mdc-card-content button {
+  margin: 0;
+}
+
+.hint {
+  color: #888;
+  padding-left: 6px;
+}
+
+.drag-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  cursor: grab;
+}
+
+.file-drag-content {
+  width: 100%;
+}
+
+.node-content-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* Visual feedback when hovering over a drop target */
+.cdk-drop-list-dragging .mat-tree-node:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+  border: 1px dashed #ccc;
+}
+
+/* The Placeholder (where the item was) */
+.drag-placeholder {
+  background: #eee;
+  border: dotted 1px #999;
+  min-height: 48px;
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* The element actively being dragged around the screen */
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 4px;
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+              0 8px 10px 1px rgba(0, 0, 0, 0.14),
+              0 3px 14px 2px rgba(0, 0, 0, 0.12);
+  background-color: white;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  opacity: 0.8;
+}
+
+.empty-drop-zone {
+  min-height: 70px;
+  border: 1px dashed transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  transition: all 0.2s;
+}
+
+.cdk-drop-list-dragging .empty-drop-zone {
+  border-color: #ccc;
+  background-color: #fafafa;
+}
+
+.drop-zone-text {
+  display: none;
+  color: #999;
+}
+
+.cdk-drop-list-dragging .empty-drop-zone .drop-zone-text {
+  display: block;
+}

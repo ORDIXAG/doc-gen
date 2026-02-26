@@ -1,0 +1,58 @@
+service:
+  name: "Dokumentationsgenerator Backend"
+  version: "snapshot-1.4.0"
+
+model_specifics:
+  use_model_index: 0
+  models:
+    - name: "GPT-5.2"
+      deployment_name: "gpt-5.2"
+      endpoint: "https://api.openai.com/v1"
+      client_args_chat:
+        max_completion_tokens: 4096
+      client_args_documentation:
+        max_completion_tokens: 50000
+      hint: "langsam, performant"
+    - name: "GPT-5 mini"
+      deployment_name: "gpt-5-mini"
+      endpoint: "https://api.openai.com/v1"
+      client_args_chat:
+        max_completion_tokens: 4096
+      client_args_documentation:
+        max_completion_tokens: 50000
+      hint: "schnell, medium"
+    - name: "GPT-5 nano"
+      deployment_name: "gpt-5-nano"
+      endpoint: "https://api.openai.com/v1"
+      client_args_chat:
+        max_completion_tokens: 4096
+      client_args_documentation:
+        max_completion_tokens: 50000
+      hint: "schnell, klein"
+
+files:
+  supported_types:
+    ".py": "python"
+    ".java": "java"
+    ".js": "javascript"
+    ".ts": "typescript"
+    ".tsx": "typescript"
+    ".sh": "shell"
+    ".bat": "batch"
+    ".cmd": "batch"
+    ".md": "markdown"
+    ".yaml": "yaml"
+    ".yml": "yaml"
+    ".json": "json"
+    ".xml": "xml"
+    ".sql": "sql"
+    ".go": "go"
+    ".spl": "spl"
+    ".html": "html"
+    ".css": "css"
+    ".scss": "scss"
+    "Dockerfile": "dockerfile"
+    ".gradle": "gradle"
+    ".txt": "text"
+    ".properties": "properties"
+    ".config": "config"

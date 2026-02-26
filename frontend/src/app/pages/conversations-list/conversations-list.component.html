@@ -1,0 +1,34 @@
+<div class="page-container">
+  <mat-card>
+    <mat-card-content>
+      <header class="header">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Suche</mat-label>
+          <input matInput placeholder="Konversation suchen..." [(ngModel)]="searchTerm" (input)="filterConversations()" data-cy="search-input">
+        </mat-form-field>
+        <button mat-fab class="create-btn" color="primary" aria-label="Neue Konversation erstellen" (click)="createNewConversation()" data-cy="create-conversation-btn">
+          <mat-icon>add</mat-icon>
+        </button>
+      </header>
+
+      <h2 class="title">Historie</h2>
+
+      <div *ngIf="isLoading" class="spinner-container" data-cy="loading-spinner">
+        <mat-spinner diameter="50"></mat-spinner>
+      </div>
+
+      <mat-list role="list" *ngIf="!isLoading" data-cy="conversations-list">
+        <div *ngIf="filteredConversations.length === 0" class="empty-state" data-cy="empty-state">Keine Konversationen gefunden.</div>
+        <mat-list-item role="listitem" *ngFor="let convo of filteredConversations" [routerLink]="['/conversation', convo.id]" [attr.data-cy]="convo.id">
+          <div class="conversation-item">
+            <span class="conversation-name">{{ convo.name }}</span>
+            <span class="conversation-last-changed">{{ convo.last_changed | date:'dd.MM.yyyy, HH:mm' }} Uhr</span>
+            <button mat-icon-button (click)="deleteConversation(convo); $event.stopPropagation()">
+              <mat-icon color="warn">delete</mat-icon>
+            </button>
+          </div>
+        </mat-list-item>
+      </mat-list>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,253 @@
+<div class="grid-container" [ngClass]="{ 'loading': isLoading }">
+  <div class="spinner-overlay" *ngIf="isLoading" data-cy="loading-overlay">
+    <mat-spinner class="spinner" diameter="50"></mat-spinner>
+  </div>
+  <!-- Left Column -->
+  <div class="left-column">
+
+  <mat-card class="list-card list-card-files">
+    <!-- eslint-disable-next-line @angular-eslint/template/no-call-expression -->
+    <mat-card-title>{{ (conversation?.name || 'Dokumentenliste').slice(0, 33) }}</mat-card-title>
+    <mat-card-content>
+      <div *ngIf="showFilesTreeView" class="tree-container" cdkDropListGroup>
+        
+        <mat-tree [dataSource]="filesDataSource" [treeControl]="filesTreeControl" class="file-tree" data-cy="file-tree">
+          <!-- Template for expandable nodes (folders) -->
+          <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
+            <li>
+              <div class="mat-tree-node" 
+                  matTreeNodeToggle 
+                  [attr.aria-label]="'Toggle ' + node.name"
+                  cdkDropList 
+                  [cdkDropListData]="node"
+                  [cdkDropListEnterPredicate]="canDrop"
+                  (cdkDropListDropped)="handleDrop($event, node)">
+                
+                <div class="drag-content" cdkDrag [cdkDragData]="node">
+                  <div *cdkDragPlaceholder class="drag-placeholder"></div>
+                  
+                  <div class="node-content-wrapper">
+                    <button mat-icon-button>
+                      <mat-icon class="mat-icon-rtl-mirror">
+                        <!-- eslint-disable-next-line @angular-eslint/template/no-call-expression -->
+                        {{filesTreeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+                      </mat-icon>
+                    </button>
+                    <mat-icon>folder</mat-icon>
+                    <span class="node-name">{{node.name}}</span>
+                    <button class="deleteButton" mat-icon-button (click)="deleteDirectory(node); $event.stopPropagation()">
+                      <mat-icon color="warn">delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- eslint-disable-next-line @angular-eslint/template/no-call-expression -->
+              <ul [class.tree-invisible]="!filesTreeControl.isExpanded(node)">
+                <ng-container matTreeNodeOutlet></ng-container>
+              </ul>
+            </li>
+          </mat-nested-tree-node>
+
+          <!-- Template for leaf nodes (files) -->
+          <mat-tree-node *matTreeNodeDef="let node">
+            <li>
+              <div class="mat-tree-node file-node"
+                  cdkDropList 
+                  [cdkDropListData]="node"
+                  [cdkDropListEnterPredicate]="canDrop"
+                  (cdkDropListDropped)="handleDrop($event, node)"
+                  (click)="selectFileTreeNode(node)"
+                  [class.activated]="selectedItem === node.originalDoc"
+                  [attr.data-cy]="node.path | slice:0:10">
+
+                <div class="drag-content file-drag-content" cdkDrag [cdkDragData]="node">
+                  <div *cdkDragPlaceholder class="drag-placeholder"></div>
+
+                  <div class="node-content-wrapper">
+                      <button mat-icon-button disabled></button> <!-- For alignment -->
+                      <mat-icon>description</mat-icon>
+                      <span class="node-name">{{node.name}}</span>
+                      <div class="node-actions">
+                        <button mat-icon-button (click)="startEditTreeFile(node); $event.stopPropagation()" *ngIf="!node.originalDoc.git_id">
+                          <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button (click)="deleteTreeFile(node); $event.stopPropagation()">
+                          <mat-icon color="warn">delete</mat-icon>
+                        </button>
+                      </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+          </mat-tree-node>
+        </mat-tree>
+
+        <div class="empty-drop-zone" 
+            cdkDropList 
+            (cdkDropListDropped)="handleDrop($event)">
+            <span class="drop-zone-text">Ablagebereich</span>
+        </div>
+
+      </div>
+
+      <!-- Flat List View -->
+      <mat-list *ngIf="!showFilesTreeView" class="file-list" data-cy="file-list">
+        <mat-list-item *ngFor="let file of files" (click)="selectItem(file)" [activated]="selectedItem === file" [attr.data-cy]="file.path | slice:0:10">
+          <span matListItemTitle class="file-path">{{ file.path }}</span>
+          <div matListItemMeta class="node-actions">
+            <button mat-icon-button (click)="startEditFile(file); $event.stopPropagation()" *ngIf="!file.git_id">
+                <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button (click)="deleteFile(file); $event.stopPropagation()">
+                <mat-icon color="warn">delete</mat-icon>
+            </button>
+          </div>
+        </mat-list-item>
+      </mat-list>
+
+    <div *ngIf="files.length === 0" class="empty-state" data-cy="file-list-empty">Keine Dokumente hinzugefügt.</div>
+  </mat-card-content>
+</mat-card>
+
+    <mat-card class="controls-card">
+    <mat-card-content>
+        <div class="controls-actions">
+            <button mat-raised-button color="primary" [matMenuTriggerFor]="addMenu" data-cy="add-menu-btn">
+                <mat-icon>add</mat-icon>
+                <span>Hinzufügen</span>
+            </button>
+            <mat-menu #addMenu="matMenu">
+                <button mat-menu-item (click)="fileInput.click()" data-cy="add-file-btn">
+                    <mat-icon>upload_file</mat-icon>
+                    <span>Datei(en) hochladen</span>
+                </button>
+                <button mat-menu-item (click)="folderInput.click()" data-cy="add-folder-btn">
+                    <mat-icon>folder_upload</mat-icon>
+                    <span>Ordner hochladen</span>
+                </button>
+                <button mat-menu-item (click)="createFile()" data-cy="create-file-btn">
+                    <mat-icon>note_add</mat-icon>
+                    <span>Neue Datei erstellen</span>
+                </button>
+            </mat-menu>
+
+            <button mat-raised-button (click)="addRepository()" data-cy="add-repo-btn">
+                <mat-icon>source</mat-icon>
+                <span>Repository</span>
+            </button>
+            <button mat-raised-button color="accent" (click)="openChat()" data-cy="chat-btn">
+                <mat-icon>chat</mat-icon>
+                <span>Chat</span>
+            </button>
+        </div>
+
+        <input type="file" #fileInput (change)="onFileSelected($event)" hidden multiple data-cy="file-input">
+        <input type="file" #folderInput (change)="onFolderSelected($event)" webkitdirectory hidden data-cy="folder-input">
+
+        <mat-form-field appearance="outline" data-cy="muster-select-container">
+          <mat-label>Muster Auswahl</mat-label>
+          <mat-select [(ngModel)]="selectedMusterIdentifier" (selectionChange)="selectMuster($event)" data-cy="muster-select">
+            <mat-option *ngFor="let muster of musterOptions" [value]="muster.is_predefined ? muster.name : muster.id">
+              {{ muster.name }} ({{ muster.is_predefined ? 'vorgefertigt' : 'eigen' }})
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" data-cy="model-select-container">
+          <mat-label>Model Auswahl</mat-label>
+          <mat-select [(ngModel)]="selectedModel" (selectionChange)="selectModel($event.value)" data-cy="model-select">
+            <mat-option *ngFor="let model of modelOptions" [value]="model">
+              {{ model.name }} <span class="hint" *ngIf="model.hint">{{ model.hint }}</span>
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button class="generate-btn" mat-raised-button color="primary" (click)="generate()" [disabled]="isGenerating" data-cy="generate-btn">
+          <span *ngIf="!isGenerating">Generieren</span>
+          <span *ngIf="isGenerating">Generiere...</span>
+        </button>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="progress-card" *ngIf="isGenerating" data-cy="progress-card">
+      <mat-card-title>Generierung läuft...</mat-card-title>
+      <mat-card-content>
+        <div class="progress-info">
+          <span>{{ currentChapter }}</span>
+          <span>{{ generationProgress }}%</span>
+        </div>
+        <mat-progress-bar
+          mode="determinate"
+          [value]="generationProgress"
+          color="primary">
+        </mat-progress-bar>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="list-card generated-docs">
+      <mat-card-title>Generierte Dokumentation</mat-card-title>
+      <mat-card-content>
+        <mat-list class="file-list" data-cy="generated-docs-list">
+          <mat-list-item *ngFor="let doc of generatedDocs" (click)="selectItem(doc)" [activated]="selectedItem === doc" [attr.data-cy]="doc.path">
+            <span matListItemTitle>
+              <!-- eslint-disable-next-line @angular-eslint/template/no-call-expression -->
+              {{ doc.path.length > 35 ? doc.path.slice(0, 35) + "..." : doc.path }}
+            </span>
+            <div matListItemMeta class="node-actions">
+              <button mat-icon-button (click)="startEditDocumentation(doc); $event.stopPropagation()">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button (click)="downloadDocumentation(doc); $event.stopPropagation()">
+                <mat-icon color="primary">download</mat-icon>
+              </button>
+              <button mat-icon-button (click)="deleteDocumentation(doc); $event.stopPropagation()">
+                <mat-icon color="warn">delete</mat-icon>
+              </button>
+            </div>
+          </mat-list-item>
+        </mat-list>
+        <div *ngIf="generatedDocs.length === 0" class="empty-state" data-cy="generated-docs-empty">Noch nichts generiert.</div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Right Column -->
+  <ng-container *ngIf="!isEditingOrCreating; else editorView">
+    <mat-card class="preview-card">
+        <mat-card-title>{{selectedItem?.path ? selectedItem?.path : 'Dokumentenvorschau'}}</mat-card-title>
+        <mat-card-content class="preview-content" data-cy="preview-content">
+        <markdown *ngIf="displayContent" [data]="displayContent" (ready)="onMarkdownReady()" ngPreserveWhitespaces></markdown>
+        <div *ngIf="!displayContent" class="empty-state" data-cy="preview-empty">
+            Wählen Sie eine Datei aus, um eine Vorschau anzuzeigen.
+        </div>
+        </mat-card-content>
+    </mat-card>
+  </ng-container>
+
+  <ng-template #editorView>
+    <mat-card class="editor-card">
+        <mat-card-title>{{ editingGenerated ? 'Dokument bearbeiten' : (editableFile.id ? 'Datei bearbeiten' : 'Datei erstellen') }}</mat-card-title>
+        <mat-card-content *ngIf="!editingGenerated" class="editor-content">
+          <mat-form-field class="file-name-field" appearance="outline">
+              <mat-label>Dateipfad</mat-label>
+              <input matInput [(ngModel)]="editableFile.path" placeholder="z.B. src/app/app.component.ts" required>
+          </mat-form-field>
+          <textarea class="content-editor" [(ngModel)]="editableFile.content" placeholder="Dateiinhalt hier einfügen..."></textarea>
+        </mat-card-content>
+        
+        <mat-card-content *ngIf="editingGenerated" class="editor-content">
+          <mat-form-field class="file-name-field" appearance="outline">
+              <mat-label>Dateipfad</mat-label>
+              <input matInput [(ngModel)]="editableGenerated.path" placeholder="z.B. docs/overview.md" required>
+          </mat-form-field>
+          <textarea class="content-editor" [(ngModel)]="editableGenerated.content" placeholder="Dokumentinhalt hier einfügen..."></textarea>
+        </mat-card-content>
+
+        <mat-card-actions align="end">
+            <button mat-button (click)="cancelEdit()" data-cy="cancel-edit-btn">Abbrechen</button>
+            <button mat-raised-button color="primary" (click)="saveFile()" data-cy="save-file-btn">Speichern</button>
+        </mat-card-actions>
+    </mat-card>
+  </ng-template>
+</div>

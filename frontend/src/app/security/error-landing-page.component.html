@@ -1,0 +1,31 @@
+<div class="page">
+    <h1>Something went wrong</h1>
+
+    <p>
+        The application cannot be loaded or you are not authenticated.
+    </p>
+
+    <p class="hint" *ngIf="(fakeAuth$ | async) === true">
+        This build runs with fake authentication enabled.
+    </p>
+
+    <div class="actions">
+        <a mat-raised-button color="primary" [routerLink]="'/conversations'">Try again</a>
+        <a mat-button [routerLink]="'/logout'">Sign out</a>
+    </div>
+
+    <div class="mock" *ngIf="showMockAuth && accounts.length > 0">
+        <h2>Mock account</h2>
+        <mat-form-field appearance="fill">
+            <mat-label>Account</mat-label>
+            <mat-select [value]="activeAccountId" (valueChange)="selectAccount($event)">
+                <mat-option *ngFor="let account of accounts" [value]="account.id">
+                    {{ account.displayName }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <div class="actions">
+            <a mat-raised-button color="primary" [routerLink]="'/conversations'">Continue</a>
+        </div>
+    </div>
+</div>

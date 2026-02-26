@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "dokumentationsgenerator"
+version = "0.1.0"
+description = ""
+authors = ["Felix Ivo <fli@ordix.de>"]
+readme = "README.md"
+packages = [{include = "*", from="src"}]
+
+[tool.poetry.dependencies]
+python = "~3.12.2"
+fastapi = "0.118.0"
+sqlmodel = "0.0.25"
+pydantic-settings = "2.11.0"
+uvicorn = "0.37.0"
+openai = "~1.109.1"
+PyYAML = "~6.0.3"
+apscheduler = "~3.11.0"
+pyjwt = "~2.10.1"
+cryptography = "~46.0.3"
+requests = "~2.32.5"
+pygithub = "^2.8.1"
+
+[tool.poetry.group.dev.dependencies]
+flake8 = "7.0.0"
+black = "25.9.0"
+pytest = "8.2.2"
+
+[tool.poetry.scripts]
+start = "main:start"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

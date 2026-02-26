@@ -1,0 +1,29 @@
+temp
+.env
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# python
+__pycache__
+.pytest_cache
+
+# project specific
+database.db
+dist
+*.log
+
+# frontend
+frontend/.angular
+frontend/.gitlab
+frontend/.nyc_output
+frontend/dist
+frontend/node_modules

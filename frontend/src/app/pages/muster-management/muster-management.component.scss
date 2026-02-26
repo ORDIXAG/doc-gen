@@ -1,0 +1,94 @@
+.page-container {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  height: 89vh;
+}
+
+mat-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.list-card {
+  .mat-mdc-card-content {
+    flex-grow: 1;
+    overflow-y: auto;
+  }
+  .mat-mdc-list-item {
+    cursor: pointer;
+  }
+  .selected {
+    background-color: rgba(63, 81, 181, 0.1);
+  }
+}
+
+mat-card-title {
+  margin: 5px 0 0 10px;
+}
+
+.editor-card {
+  margin: 0;
+
+  .mat-mdc-card-content {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+    gap: 1rem;
+    flex-grow: 1;
+  }
+
+  .name-editor, .content-editor {
+    padding: 8px 0 0 0;
+    margin: 0 0 -8px 0;
+  }
+  
+  .content-editor {
+    flex: 1;
+    overflow-y: auto;
+    textarea {
+      height: 100%;
+      resize: none;
+    }
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: #888;
+  
+  mat-icon {
+    font-size: 48px;
+    height: 48px;
+    width: 48px;
+  }
+}
+
+.editor-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  button {
+    transform: scale(0.9);
+    color: #666;
+  }
+}
+
+::ng-deep .multiline-tooltip {
+  white-space: pre-line;
+  line-height: 1.5;
+  font-size: 13px;
+}
+
+.predefined {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

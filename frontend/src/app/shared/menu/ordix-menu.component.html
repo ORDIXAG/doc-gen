@@ -1,0 +1,48 @@
+<mat-toolbar class="menu" color="primary">
+    <a class="brand" [routerLink]="'/conversations'">
+        <span class="brand-name">{{ appName }}</span>
+        <span class="brand-meta" *ngIf="version">{{ version }}</span>
+        <span class="brand-meta" *ngIf="fakeAuth">fake-auth</span>
+    </a>
+
+    <div class="nav">
+        <a
+            *ngFor="let button of navButtons; trackBy: trackByRouterLink"
+            mat-button
+            [routerLink]="button.routerLink"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{exact: true}">
+            {{ button.displayName }}
+        </a>
+    </div>
+
+    <span class="spacer"></span>
+
+    <ng-container *ngIf="showMockAuth && accounts.length > 0">
+        <button mat-button [matMenuTriggerFor]="accountMenu">
+            <mat-icon>person</mat-icon>
+            {{ activeAccountName }}
+        </button>
+        <mat-menu #accountMenu="matMenu">
+            <button
+                mat-menu-item
+                *ngFor="let account of accounts"
+                (click)="selectAccount(account.id)">
+                <span class="account-name">{{ account.displayName }}</span>
+                <span class="account-active" *ngIf="account.id === activeAccountId">active</span>
+            </button>
+        </mat-menu>
+    </ng-container>
+
+    <a class="contact" *ngIf="contactEmail" [href]="'mailto:' + contactEmail" mat-button>
+        <mat-icon>help</mat-icon>
+        Contact
+    </a>
+
+    <a mat-button [routerLink]="'/logout'">
+        <mat-icon>logout</mat-icon>
+        Logout
+    </a>
+</mat-toolbar>
+
+<ng-content></ng-content>

@@ -1,0 +1,76 @@
+<div class="page-container">
+  <!-- Left Column: List -->
+  <mat-card class="list-card">
+    <mat-card-title>Muster Management</mat-card-title>
+    <mat-card-actions>
+      <button mat-flat-button color="primary" (click)="startNewMuster()" data-cy="create-muster-btn">
+        <mat-icon>add</mat-icon>
+        Muster erstellen
+      </button>
+    </mat-card-actions>
+    <mat-card-content>
+      <mat-spinner *ngIf="isLoading && musterList.length === 0" diameter="40"></mat-spinner>
+      <mat-list *ngIf="!isLoading || musterList.length > 0">
+        <mat-list-item 
+            *ngFor="let muster of musterList" 
+            (click)="selectMuster(muster)"
+            [class.selected]="selectedMuster?.id === muster.id"
+            [class.predefined]="muster.is_predefined">
+          
+          <mat-icon matListItemIcon>{{ muster.is_predefined ? 'description' : 'edit_document' }}</mat-icon>
+          <div matListItemTitle>{{ muster.name }}</div>
+          <div matListItemLine>{{ muster.is_predefined ? 'Vordefiniert' : 'Eigen' }}</div>
+
+          <div matListItemMeta *ngIf="!muster.is_predefined">
+            <button mat-icon-button (click)="deleteMuster(muster); $event.stopPropagation()">
+              <mat-icon color="warn">delete</mat-icon>
+            </button>
+          </div>
+        </mat-list-item>
+      </mat-list>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Right Column: Editor -->
+  <mat-card class="editor-card">
+    <ng-container *ngIf="isCreating || selectedMuster">
+      <mat-card-title class="editor-title">
+        <span>
+          {{ isCreating ? 'Muster Erstellen' : (isDisabled ? 'Muster ist vorgefertigt und kann nicht verändert werden' : 'Muster Verändern') }}
+        </span>
+        <button mat-icon-button 
+                [matTooltip]="helpText"
+                matTooltipClass="multiline-tooltip"
+                aria-label="Hilfe zu automatischen Ersetzungen im Muster">
+          <mat-icon>help_outline</mat-icon>
+        </button>
+      </mat-card-title>
+      <mat-card-content>
+        <mat-form-field appearance="outline" class="name-editor">
+          <mat-label>Muster Name</mat-label>
+          <input matInput [(ngModel)]="editorMuster.name" required [disabled]="isDisabled">
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="content-editor">
+          <mat-label>Muster Inhalt (Markdown)</mat-label>
+          <textarea matInput
+            cdkTextareaAutosize
+            cdkAutosizeMinRows="5"
+            cdkAutosizeMaxRows="10"
+            [(ngModel)]="editorMuster.content"
+            required
+            [disabled]="isDisabled">
+          </textarea>
+        </mat-form-field>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-flat-button color="primary" (click)="saveMuster()" [disabled]="isLoading || isDisabled">Speichern</button>
+        <button mat-button (click)="cancel()" [disabled]="isDisabled">Abbrechen</button>
+      </mat-card-actions>
+    </ng-container>
+
+    <div *ngIf="!isCreating && !selectedMuster" class="empty-state">
+      <mat-icon>edit</mat-icon>
+      <p>Wähle ein Muster aus, um es zu editieren, oder erstelle ein neues.</p>
+    </div>
+  </mat-card>
+</div>

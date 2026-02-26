@@ -1,0 +1,38 @@
+<div class="dialog-title">
+  <h1 mat-dialog-title>Chat with Assistant</h1>
+  <button mat-icon-button 
+          [matTooltip]="helpText"
+          matTooltipClass="multiline-tooltip"
+          aria-label="Hilfe zu automatischen Ersetzungen im Muster">
+    <mat-icon>help_outline</mat-icon>
+  </button>
+</div>
+
+<div mat-dialog-content class="dialog-content">
+  <div class="chat-history" #chatHistoryContainer>
+    <div *ngFor="let msg of messages" class="chat-message" [ngClass]="'role-' + msg.role">
+      <div class="message-bubble">
+        <markdown [data]="msg.content || '...'" ngPreserveWhitespaces></markdown>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div mat-dialog-actions class="dialog-actions">
+  <mat-form-field appearance="outline" class="message-input">
+    <mat-label>Your message...</mat-label>
+    <textarea matInput
+              cdkTextareaAutosize
+              #autosize="cdkTextareaAutosize"
+              cdkAutosizeMinRows="1"
+              cdkAutosizeMaxRows="5"
+              [(ngModel)]="newMessage"
+              (keydown.enter)="sendMessage(); $event.preventDefault()"
+              [disabled]="isLoading"></textarea>
+  </mat-form-field>
+
+  <button mat-fab color="primary" class="send-message-btn" (click)="sendMessage()" [disabled]="isSendDisabled">
+    <mat-icon *ngIf="!isLoading">send</mat-icon>
+    <mat-progress-spinner *ngIf="isLoading" mode="indeterminate" diameter="24"></mat-progress-spinner>
+  </button>
+</div>

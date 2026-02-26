@@ -1,0 +1,69 @@
+:host {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 4rem;
+  height: 90vh;
+  box-sizing: border-box;
+}
+
+.page-container {
+  width: 100%;
+  max-width: 800px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.search-field {
+  flex-grow: 1;
+}
+
+.create-btn {
+  width: 45px;
+  height: 45px;
+  margin: -20px 0 0 0 !important;
+}
+
+.title {
+  text-align: center;
+  color: #555;
+  margin-bottom: 1.5rem;
+  font-weight: 300;
+  font-size: 1.5rem;
+}
+
+.mat-mdc-list-item {
+  cursor: pointer;
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+}
+
+.spinner-container, .empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  color: #888;
+}
+
+.conversation-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.conversation-name {
+  flex: 1;
+  /* Add any additional styles for the conversation name */
+}
+
+.conversation-last-changed {
+  color: gray;
+  /* Add any additional styles for the conversation last changed */
+}

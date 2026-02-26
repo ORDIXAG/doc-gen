@@ -1,0 +1,23 @@
+[
+	{
+		"id": null,
+		"name": "wiki article",
+		"content": null,
+		"owner": null,
+		"is_predefined": true
+	},
+	{
+		"id": null,
+		"name": "code comments",
+		"content": null,
+		"owner": null,
+		"is_predefined": true
+	},
+	{
+		"id": null,
+		"name": "technical documentation",
+		"content": null,
+		"owner": null,
+		"is_predefined": true
+	}
+]

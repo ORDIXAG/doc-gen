@@ -1,0 +1,97 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+h1 {
+  margin: 5px 0 0 10px;
+}
+
+.dialog-content {
+    flex-grow: 1;
+    overflow: hidden;
+    padding: 0 24px 16px;
+    display: flex;
+}
+
+.chat-history {
+    width: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.chat-message {
+    display: flex;
+    max-width: 85%;
+
+    &.role-user {
+        align-self: flex-end;
+        flex-direction: row-reverse;
+
+        .message-bubble {
+            background-color: #3f51b5; // Angular Material primary color
+            color: white;
+            border-radius: 16px 16px 4px 16px;
+        }
+    }
+
+    &.role-assistant {
+        align-self: flex-start;
+
+        .message-bubble {
+            background-color: #f0f0f0;
+            color: black;
+            border-radius: 16px 16px 16px 4px;
+        }
+    }
+}
+
+.message-bubble {
+    padding: 10px 16px;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+
+    ::ng-deep { // To style markdown content
+      p {
+        margin: 0;
+      }
+      pre {
+        margin: 8px 0 0;
+      }
+    }
+}
+
+.dialog-actions {
+    padding: 8px 24px 16px;
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+}
+
+.message-input {
+    flex-grow: 1;
+}
+
+::ng-deep .multiline-tooltip {
+  white-space: pre-line;
+  line-height: 1.5;
+  font-size: 13px;
+}
+
+.dialog-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 4px;
+
+  button {
+    opacity: 0.6;
+  }
+}
+
+.send-message-btn {
+  align-self: baseline;
+}
