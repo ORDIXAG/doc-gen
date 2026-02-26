@@ -1,6 +1,9 @@
 # Anwendung: Dokumentationsgenerator
 
+Der Dokumentationsgenerator (auch genannt doc-gen oder DokuGen) ist eine Applikation, welche aus Dateien oder ganzen Repositories Dokumente erstellt. Es lassen sich fachlich technische Dokumentationen, Wiki Einträge und Code Kommentare generieren und für weitere Arten von Dokumenten können Muster angelegt werden, anhand welcher die Dokumente erstellt werden.<br>
 Für eine Übersicht der Routen des Backends, siehe http://localhost:2320/dokumentationsgenerator_backend/docs nachdem das Backend gestartet worden ist.
+
+Die App beinhaltet ein Angular Frontend und ein Python Backend, sowie eine SQLite Datenbank.
 
 ## Prerequesits
 
@@ -14,22 +17,21 @@ export GITHUB_TOKEN="..."
 
 *Hinweis: Der GitHub Token ist nicht notwendig, kann aber zu Rate-Limit-Problemen führen, falls dieser nicht angegeben wird.*
 
-## Starten der Anwendung
+## Starten des Backends
 
 ```bash
+cd backend
 pip install poetry
-```
-
-```bash
 poetry lock
-```
-
-```bash
 poetry install
+poetry run start
 ```
 
+## Starten des Frontends
+
 ```bash
-poetry run start
+cd frontend
+npm install
 ```
 
 ## 🧪 Anwendung testen
@@ -40,6 +42,7 @@ poetry run start
 
 ```bash
 pip install black flake8
+cd backend
 flake8 .
 black .
 ```
@@ -47,13 +50,13 @@ black .
 ### Unit-Tests & Komponenten-Tests
 
 ```bash
-pytest
+cd backend
+poetry run pytest
 ```
 
 ## Docker
 
 ```bash
 docker build -t dokumentationsgenerator .
-
 docker run -p 2320:2320 dokumentationsgenerator
 ```
