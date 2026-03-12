@@ -8,8 +8,8 @@ from src.models.Documentation import Documentation, DocumentationRead
 from src.models.Conversation import Conversation, ConversationRead
 from src.models.ChatHistory import ChatHistory, ChatHistoryRead, ChatHistoryUpdate
 from src.models.Repository import Repository
-from models.GitDeletedPath import GitDeletedPath
-from models.GitMovedPath import GitMovedPath
+from src.models.GitDeletedPath import GitDeletedPath
+from src.models.GitMovedPath import GitMovedPath
 from src.models.Muster import Muster
 from src.models.FileNode import FileNode
 from src.util.auth import get_jwt_owner_from_request

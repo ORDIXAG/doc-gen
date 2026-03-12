@@ -5,6 +5,8 @@ Für eine Übersicht der Routen des Backends, siehe http://localhost:2320/dokume
 
 Die App beinhaltet ein Angular Frontend und ein Python Backend, sowie eine SQLite Datenbank.
 
+![Frontend des Dokumentationsgenerators am Beispiel von tiktoken](images/dokumentationsgenerator_tiktoken1.png)
+
 ## Prerequesits
 
 Ein GitHub Token und der richtige OpenAI API Key sind als Secret erforderlich.
@@ -32,6 +34,7 @@ poetry run start
 ```bash
 cd frontend
 npm install
+npm run start
 ```
 
 ## 🧪 Anwendung testen
