@@ -8,6 +8,7 @@ model_specifics:
     - name: "GPT-5.2"
       deployment_name: "gpt-5.2"
       endpoint: "https://api.openai.com/v1"
+      api_key_env_variable_name: "OPENAI_API_KEY"
       client_args_chat:
         max_completion_tokens: 4096
       client_args_documentation:
@@ -16,6 +17,7 @@ model_specifics:
     - name: "GPT-5 mini"
       deployment_name: "gpt-5-mini"
       endpoint: "https://api.openai.com/v1"
+      api_key_env_variable_name: "OPENAI_API_KEY"
       client_args_chat:
         max_completion_tokens: 4096
       client_args_documentation:
@@ -24,6 +26,7 @@ model_specifics:
     - name: "GPT-5 nano"
       deployment_name: "gpt-5-nano"
       endpoint: "https://api.openai.com/v1"
+      api_key_env_variable_name: "OPENAI_API_KEY"
       client_args_chat:
         max_completion_tokens: 4096
       client_args_documentation:

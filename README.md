@@ -1,6 +1,6 @@
 # Anwendung: Dokumentationsgenerator
 
-Der Dokumentationsgenerator (auch genannt doc-gen oder DokuGen) ist eine Applikation, welche aus Dateien oder ganzen Repositories Dokumente erstellt. Es lassen sich fachlich technische Dokumentationen, Wiki Einträge und Code Kommentare generieren und für weitere Arten von Dokumenten können Muster angelegt werden, anhand welcher die Dokumente erstellt werden.<br>
+Der Dokumentationsgenerator (auch genannt doc-gen oder DokuGen) ist eine Applikation, welche aus Dateien oder ganzen Repositories Dokumente erstellt. Es lassen sich fachlich technische Dokumentationen, Wiki Einträge und Code Kommentare generieren und für weitere Arten von Dokumenten können Muster angelegt werden, anhand welcher die Dokumente erstellt werden. Desweiteren kann man einen Chat starten, in dem die Dateien im Kontext vorhanden sind.<br>
 Für eine Übersicht der Routen des Backends, siehe http://localhost:2320/dokumentationsgenerator_backend/docs nachdem das Backend gestartet worden ist.
 
 Die App beinhaltet ein Angular Frontend und ein Python Backend, sowie eine SQLite Datenbank.
@@ -9,7 +9,9 @@ Die App beinhaltet ein Angular Frontend und ein Python Backend, sowie eine SQLit
 
 ## Prerequesits
 
-Ein GitHub Token und der richtige OpenAI API Key sind als Secret erforderlich.
+Ein GitHub Token und ein API Key für ein OpenAI-kompatiblen Endpunkt sind erforderlich.
+Die App kann weitere Modelle verwenden, solange ein OpenAI-Endpunkt für dieses Modell existiert.
+Dafür muss das Modell in `config/config.yaml` eingetragen werden.
 Um die Anwendung lokal zu nutzen, müssen diese als Environment Variablen abgesetzt sein, wie z.B:
 
 ```bash

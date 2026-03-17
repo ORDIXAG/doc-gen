@@ -818,7 +818,10 @@ Entfernen Sie alle Beispielinhalte aus dem Muster, wenn sie nicht im Repository 
             model_index if model_index else config.use_model_index
         ]
 
-        client = OpenAI(base_url=model["endpoint"], api_key=config.api_key)
+        client = OpenAI(
+            base_url=model["endpoint"],
+            api_key=os.environ.get(model["api_key_env_variable_name"]),
+        )
 
         full_response = ""
         chapters_completed = 0
@@ -1016,7 +1019,10 @@ Basierend auf dem Kontext oben, beantworten Sie bitte die folgende Frage.
         model_index if model_index else config.use_model_index
     ]
 
-    client = OpenAI(base_url=model["endpoint"], api_key=config.api_key)
+    client = OpenAI(
+        base_url=model["endpoint"],
+        api_key=os.environ.get(model["api_key_env_variable_name"]),
+    )
 
     try:
         full_response = ""

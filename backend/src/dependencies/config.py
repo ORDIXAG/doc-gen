@@ -25,7 +25,6 @@ class Config:
 
         self.logger = logging.getLogger(__name__)
 
-        self.api_key = os.environ.get("OPENAI_API_KEY")
         self.github_token = os.environ.get("GITHUB_TOKEN")
         self.environment = os.environ.get("ENVIRONMENT", "dev")
 
@@ -35,9 +34,16 @@ class Config:
 
         self.muster_directory: str = "muster"
 
-        if not self.api_key:
-            self.logger.error("API key not found as variables/secrets.")
-            raise Exception("API key not found as variables/secrets.")
+        for model in self.available_models:
+            if not model.get("api_key_env_variable_name") and not os.environ.get(
+                model.get("api_key_env_variable_name")
+            ):
+                self.logger.error(
+                    f"API key not found as variables for model '{model['name']}'."
+                )
+                raise Exception(
+                    f"API key not found as variables for model '{model['name']}'."
+                )
         if not self.github_token:
             self.logger.warning("Github token not found as variables/secrets.")
             self.github_token = None
