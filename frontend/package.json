@@ -4,7 +4,7 @@
     "private": false,
     "scripts": {
         "ng": "ng",
-        "start": "ng serve",
+        "start": "ng serve --proxy-config proxy.localhost.conf.json",
         "start:e2e": "ng run dokumentationsgenerator:serve-coverage:local",
         "build": "ng build",
         "watch": "ng build --watch",

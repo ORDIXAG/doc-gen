@@ -420,7 +420,7 @@ class TestFileEndpoints:
             headers={"Authorization": f"Bearer {jwt_token}"},
         )
 
-        assert response.status_code == 205
+        assert response.status_code == 204
 
         # Verify DB: files under /to_delete are gone, other files remain
         remaining = session.exec(

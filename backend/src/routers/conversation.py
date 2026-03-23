@@ -344,7 +344,7 @@ def delete_file(
     return {"message": "File deleted successfully"}
 
 
-@router.delete("/conversation/{conversation_id}/directory", status_code=205)
+@router.delete("/conversation/{conversation_id}/directory", status_code=204)
 def delete_directory(
     conversation_id: int,
     path: str,
@@ -1211,51 +1211,58 @@ def fetch_git_files(repository, repo, config, conversation_id, db, path=""):
         )
     )
 
-    files_data = []
     supported_types = config.supported_types.keys()
+
+    deleted_paths_set = set(deleted_paths)
+    moved_paths_sorted = sorted(
+        moved_paths, key=lambda mp: len(mp.old_path), reverse=True
+    )
+
+    def _is_deleted(p: str) -> bool:
+        # Deletions apply to the *effective* path after moves.
+        return any(p.startswith(dp) for dp in deleted_paths_set)
+
+    def _apply_moves(p: str) -> str:
+        seen = set()
+        while True:
+            if p in seen:
+                return p
+            seen.add(p)
+            updated = p
+            for mp in moved_paths_sorted:
+                if mp.old_path and mp.old_path in updated:
+                    updated = updated.replace(mp.old_path, mp.new_path).strip("/")
+            if updated == p:
+                return p
+            p = updated
+
+    files_data = []
     contents = repo.get_contents(path)
     while contents:
         file_content = contents.pop(0)
         if file_content.type == "dir":
             contents.extend(repo.get_contents(file_content.path))
-        elif any(file_content.path.endswith(ext) for ext in supported_types):
-            content = file_content.decoded_content.decode("utf-8", errors="replace")
-            if not content:
-                continue
-            file_handle_split = file_content.name.split(".")
-            files_data.append(
-                File(
-                    conversation_id=conversation_id,
-                    path=file_content.path,
-                    content=content,
-                    file_type=(
-                        file_handle_split[-1] if len(file_handle_split) > 1 else ""
-                    ),
-                    git_id=repository.id,
-                )
+            continue
+
+        if not any(file_content.path.endswith(ext) for ext in supported_types):
+            continue
+
+        effective_path = _apply_moves(file_content.path)
+        if _is_deleted(effective_path):
+            continue
+
+        content = file_content.decoded_content.decode("utf-8", errors="replace")
+        if not content:
+            continue
+        file_handle_split = file_content.name.split(".")
+        files_data.append(
+            File(
+                conversation_id=conversation_id,
+                path=effective_path,
+                content=content,
+                file_type=file_handle_split[-1] if len(file_handle_split) > 1 else "",
+                git_id=repository.id,
             )
-
-    # Move Files
-    _removed_path = True
-    while _removed_path:
-        _removed_path = False
-        for moved_path in moved_paths:
-            for file in files_data:
-                if moved_path.old_path in file.path:
-                    file.path = file.path.replace(
-                        moved_path.old_path, moved_path.new_path
-                    ).strip("/")
-                    did_move = True
-            if did_move:
-                moved_paths.remove(moved_path)
-                _removed_path = True
-                break
-
-    # Remove Files
-    files_to_remove = []
-    for file in files_data:
-        if any(file.path.startswith(path) for path in deleted_paths):
-            files_to_remove.append(file)
-    files_data = list(filter(lambda item: item not in files_to_remove, files_data))
+        )
 
     return files_data

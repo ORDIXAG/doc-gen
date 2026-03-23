@@ -1,6 +1,6 @@
 {
   "/apps-local/dokumentationsgenerator_backend/**": {
-    "target": "http://localhost:2320",
+    "target": "http://backend:2320",
     "secure": false,
     "changeOrigin": true,
     "pathRewrite": {

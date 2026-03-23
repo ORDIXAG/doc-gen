@@ -130,6 +130,12 @@ export class ApiService extends AbstractService {
         );
     }
 
+    getDocumentation(conversationId: number, documentationId: number): Observable<GeneratedDocumentation> {
+        return this.http.get<GeneratedDocumentation>(
+            this.getRelativeServiceURL(`/conversation/${conversationId}/documentations/${documentationId}`)
+        );
+    }
+
     generateDocumentationStream(
         conversationId: number,
         repoId: string,

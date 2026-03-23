@@ -162,6 +162,118 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
         });
     }
 
+    private rebuildFilesTreeAndSort(): void {
+        this.files = this.files.sort((a, b) => a.path.localeCompare(b.path));
+        this.filesDataSource.data = this.buildFileTree(this.files);
+    }
+
+    private rebuildGeneratedDocsAndSort(): void {
+        this.generatedDocs = this.generatedDocs.sort((a, b) => a.path.localeCompare(b.path));
+    }
+
+    private upsertFile(file: DocumentFile): void {
+        const idx = this.files.findIndex(f => f.id === file.id);
+        if (idx >= 0) {
+            this.files[idx] = file;
+        } else {
+            this.files.push(file);
+        }
+
+        if (this.selectedItem && 'id' in this.selectedItem && this.selectedItem.id === file.id) {
+            this.selectedItem = file;
+            this.prepareDisplayContent();
+        }
+
+        this.rebuildFilesTreeAndSort();
+    }
+
+    private removeFileFromView(file: DocumentFile): void {
+        this.files = this.files.filter(f => f.path !== file.path);
+        if (this.selectedItem && 'path' in this.selectedItem && this.selectedItem.path === file.path) {
+            this.selectedItem = undefined;
+            this.displayContent = undefined;
+        }
+        this.rebuildFilesTreeAndSort();
+    }
+
+    private removeDirectoryFromView(path: string, gitId: number): void {
+        const normalized = path.replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
+        const prefix = normalized ? normalized + '/' : '';
+
+        this.files = this.files.filter(f => {
+            // eslint-disable-next-line camelcase
+            if (f.git_id !== gitId) {
+                return true;
+            }
+            return !(f.path === normalized || f.path.startsWith(prefix));
+        });
+
+        if (this.selectedItem && 'path' in this.selectedItem) {
+            const selectedPath = this.selectedItem.path;
+            if (!normalized || selectedPath === normalized || selectedPath.startsWith(prefix)) {
+                this.selectedItem = undefined;
+                this.displayContent = undefined;
+            }
+        }
+
+        this.rebuildFilesTreeAndSort();
+    }
+
+    private applyMoveToFiles(oldBasePath: string, newBasePath: string): void {
+        const oldNorm = oldBasePath.replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
+        const newNorm = newBasePath.replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
+        if (!oldNorm) {
+            return;
+        }
+
+        const oldPrefix = oldNorm + '/';
+        const newPrefix = newNorm ? newNorm + '/' : '';
+
+        this.files = this.files.map(f => {
+            if (f.path === oldNorm) {
+                return {...f, path: newNorm};
+            }
+            if (f.path.startsWith(oldPrefix)) {
+                return {...f, path: newPrefix + f.path.slice(oldPrefix.length)};
+            }
+            return f;
+        });
+
+        if (this.selectedItem && 'path' in this.selectedItem) {
+            const selectedPath = this.selectedItem.path;
+            if (selectedPath.includes(oldNorm)) {
+                const updated = selectedPath.replace(oldNorm, newNorm);
+                this.selectedItem = {...this.selectedItem, path: updated} as any;
+                this.prepareDisplayContent();
+            }
+        }
+
+        this.rebuildFilesTreeAndSort();
+    }
+
+    private upsertGeneratedDocumentation(doc: GeneratedDocumentation): void {
+        const idx = this.generatedDocs.findIndex(d => d.id === doc.id);
+        if (idx >= 0) {
+            this.generatedDocs[idx] = doc;
+        } else {
+            this.generatedDocs.push(doc);
+        }
+        if (this.selectedItem && 'id' in this.selectedItem && this.selectedItem.id === doc.id) {
+            this.selectedItem = doc;
+            this.prepareDisplayContent();
+        }
+        this.rebuildGeneratedDocsAndSort();
+    }
+
+    private removeGeneratedDocumentationFromView(doc: GeneratedDocumentation): void {
+        this.generatedDocs = this.generatedDocs.filter(d => d.id !== doc.id);
+        if (this.selectedItem && 'id' in this.selectedItem && this.selectedItem.id === doc.id) {
+            this.selectedItem = undefined;
+            this.displayContent = undefined;
+        }
+        this.rebuildGeneratedDocsAndSort();
+    }
+
     selectItem(item: SelectableItem): void {
         this.selectedItem = item;
         this.prepareDisplayContent();
@@ -194,19 +306,19 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
 
     deleteFile(file: DocumentFile): void {
         this.api.deleteFile(this.conversationId, file.id, file.path, file.git_id).subscribe(() => {
-            this.loadData();
+            this.removeFileFromView(file);
         });
     }
 
     deleteDocumentation(doc: GeneratedDocumentation): void {
         this.api.deleteDocumentation(this.conversationId, doc.id).subscribe(() => {
-            this.loadData();
+            this.removeGeneratedDocumentationFromView(doc);
         });
     }
 
     deleteDirectory(node: FileNode): void {
         this.api.deleteDirectory(this.conversationId, node.path, node.gitId).subscribe(() => {
-            this.loadData();
+            this.removeDirectoryFromView(node.path, node.gitId);
         });
     }
 
@@ -267,7 +379,8 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
                 // update existing generated documentation
                 this.api.updateDocumentation(this.editableGenerated as GeneratedDocumentation).subscribe(
                     () => {
-                        this.finishEditing();
+                        this.upsertGeneratedDocumentation(this.editableGenerated as GeneratedDocumentation);
+                        this.finishEditing(false);
                     },
                     err => {
                         // eslint-disable-next-line no-console
@@ -295,7 +408,8 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
         if (this.editableFile.id) {
             // Existing file: call editFile
             this.api.editFile(this.editableFile as DocumentFile).subscribe(() => {
-                this.finishEditing();
+                this.upsertFile(this.editableFile as DocumentFile);
+                this.finishEditing(false);
             });
         } else {
             // New file: call addFile
@@ -303,18 +417,21 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
             const fileType = this.getMimeTypeFromExtension(extension);
             this.api
                 .addFile(this.conversationId, this.editableFile.path!, this.editableFile.content!, fileType)
-                .subscribe(() => {
-                    this.finishEditing();
+                .subscribe((created: DocumentFile) => {
+                    this.upsertFile(created);
+                    this.finishEditing(false);
                 });
         }
     }
 
-    private finishEditing(): void {
+    private finishEditing(refreshData = false): void {
         this.isEditingOrCreating = false;
         this.editableFile = {};
         this.editingGenerated = false;
         this.editableGenerated = {};
-        this.loadData();
+        if (refreshData) {
+            this.loadData();
+        }
     }
 
     downloadDocumentation(documentation: GeneratedDocumentation): void {
@@ -464,11 +581,8 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
             reader.onload = e => {
                 const content = e.target?.result as string;
                 this.api.addFile(this.conversationId, file.name, content, file.type).subscribe(
-                    () => {
-                        this.api.getFiles(this.conversationId).subscribe(files => {
-                            this.files = files.sort((a, b) => a.path.localeCompare(b.path));
-                            this.filesDataSource.data = this.buildFileTree(this.files);
-                        });
+                    (created: DocumentFile) => {
+                        this.upsertFile(created);
                     },
                     err => {
                         this.isLoading = false;
@@ -523,11 +637,12 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
         }
 
         forkJoin(uploadObservables).subscribe({
-            next: () => {
-                this.api.getFiles(this.conversationId).subscribe(_files => {
-                    this.files = _files.sort((a, b) => a.path.localeCompare(b.path));
-                    this.filesDataSource.data = this.buildFileTree(this.files);
-                });
+            next: responses => {
+                for (const r of responses) {
+                    if (r) {
+                        this.upsertFile(r as DocumentFile);
+                    }
+                }
             },
             error: err => {
                 // eslint-disable-next-line no-console
@@ -547,11 +662,13 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
             return;
         }
         this.isLoading = true;
-        this.git = repoFullIdentifier.toString().substring(0, repoFullIdentifier.toString().indexOf('/'));
-        this.repoId = repoFullIdentifier.toString().substring(repoFullIdentifier.toString().indexOf('/') + 1);
+        const git_parts = repoFullIdentifier.replace("https://", "").replace("github.com", "").split("/");
+        this.git = git_parts[0];
+        this.repoId = git_parts[1];
         this.api.addRepository(this.conversationId, this.git, this.repoId).subscribe({
-            next: () => {
-                this.loadData();
+            next: (files: DocumentFile[]) => {
+                this.files = [...this.files, ...files];
+                this.rebuildFilesTreeAndSort();
                 this.isLoading = false;
             },
             error: err => {
@@ -633,7 +750,15 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
                                 this.currentChapter = 'Fertig!';
                                 this.generationProgress = 100;
                                 this.isGenerating = false;
-                                this.loadData(); // Reload the list of generated documents
+                                // Update the generated-doc list without refetching everything
+                                if (event.documentation_id) {
+                                    this.api.getDocumentation(this.conversationId, event.documentation_id).subscribe({
+                                        next: doc => this.upsertGeneratedDocumentation(doc),
+                                        error: () => this.api
+                                            .getDocumentations(this.conversationId)
+                                            .subscribe(docs => (this.generatedDocs = docs)),
+                                    });
+                                }
                                 this.displayContent = this.displayContent?.replace(
                                     mermaidRegex,
                                     (match, mermaidContent) => {
@@ -730,7 +855,9 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
 
         this.api.moveTree(this.conversationId, draggedNode, targetPath).subscribe({
             next: () => {
-                this.loadData();
+                const targetNormalized = targetPath.replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
+                const newBase = targetNormalized ? `${targetNormalized}/${draggedNode.name}` : draggedNode.name;
+                this.applyMoveToFiles(draggedNode.path, newBase);
             },
             error: err => {
                 this.snackBar.open('Fehler beim Verschieben: ' + err.error.detail, 'Close', {duration: 5000});
